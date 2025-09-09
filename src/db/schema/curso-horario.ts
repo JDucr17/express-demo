@@ -1,6 +1,6 @@
 import { pgTable, serial, integer, varchar, smallint, foreignKey } from 'drizzle-orm/pg-core';
-import { cursoGrupo } from './curso-grupo.js';
-import { edificio } from './edificio.js';
+import { cursoGrupo } from './curso-grupo';
+import { edificio } from './edificio';
 
 export const cursoHorario = pgTable(
   'curso_horario',

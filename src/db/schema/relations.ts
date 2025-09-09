@@ -1,10 +1,10 @@
 import { relations } from 'drizzle-orm/relations';
-import { departamento } from './departamento.js';
-import { curso } from './curso.js';
-import { cursoGrupo } from './curso-grupo.js';
-import { ciclo } from './ciclo.js';
-import { cursoHorario } from './curso-horario.js';
-import { edificio } from './edificio.js';
+import { departamento } from './departamento';
+import { curso } from './curso';
+import { cursoGrupo } from './curso-grupo';
+import { ciclo } from './ciclo';
+import { cursoHorario } from './curso-horario';
+import { edificio } from './edificio';
 
 export const cursoRelations = relations(curso, ({ one, many }) => ({
   departamento: one(departamento, {

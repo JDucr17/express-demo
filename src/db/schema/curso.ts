@@ -7,7 +7,7 @@ import {
   boolean,
   foreignKey,
 } from 'drizzle-orm/pg-core';
-import { departamento } from './departamento.js';
+import { departamento } from './departamento';
 
 export const curso = pgTable(
   'curso',
