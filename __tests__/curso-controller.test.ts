@@ -1,5 +1,8 @@
 import request from 'supertest';
 import express from 'express';
+import cursoRouter from '../src/modules/curso/curso-routes';
+import { errorHandler } from '../src/middleware/error-handler';  
+
 
 
 jest.mock('../src/db/config', () => ({
@@ -25,9 +28,6 @@ jest.mock('../src/modules/curso/curso-repository', () => ({
     findPaginated: jest.fn()
   }))
 }));
-
-import cursoRouter from '../src/modules/curso/curso-routes';
-import { errorHandler } from '../src/middleware/error-handler';  
 
 const app = express();
 app.use(express.json());
