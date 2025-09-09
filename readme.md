@@ -29,5 +29,3 @@ PORT=3005
 npm install
 npx drizzle-kit push
 ```
-
-```
