@@ -30,7 +30,7 @@ npm install
 npx drizzle-kit push
 ```
 
-5. Despues de pushear las tablas a neon: Correr lo siguiente:
+5. Despues de pushear las tablas a neon, Correr lo siguiente en neon sql editor:
 
 ```sql
 
