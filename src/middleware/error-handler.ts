@@ -14,6 +14,26 @@ interface ErrorResponse {
   };
 }
 
+/**
+ * Extract database error from Drizzle wrapper
+ * Drizzle wraps all database errors, so we need to extract the original
+ */
+function extractDbError(error: unknown): DatabaseError | null {
+  // Drizzle wraps errors with message "Failed query: ..." and puts original in cause
+  if (
+    error instanceof Error &&
+    error.message.startsWith('Failed query:') &&
+    'cause' in error &&
+    error.cause instanceof DatabaseError
+  ) {
+    return error.cause;
+  }
+  return null;
+}
+
+/**
+ * Send error response to client
+ */
 function sendError(
   res: Response,
   status: number,
@@ -28,11 +48,14 @@ function sendError(
   if (details !== undefined) {
     response.error.details = details;
   }
+  
   res.status(status).json(response);
 }
 
-// Handle Zod validation errors
-function handleValidationError(err: ZodError, req: Request, res: Response) {
+/**
+ * Handle Zod validation errors
+ */
+function handleValidationError(err: ZodError, req: Request, res: Response): void {
   logger.info(
     {
       type: 'validation_error',
@@ -51,8 +74,10 @@ function handleValidationError(err: ZodError, req: Request, res: Response) {
   sendError(res, 400, 'VALIDATION_ERROR', 'Datos inválidos', details);
 }
 
-// Handle database errors
-function handleDatabaseError(err: DatabaseError, req: Request, res: Response) {
+/**
+ * Handle database errors
+ */
+function handleDatabaseError(err: DatabaseError, req: Request, res: Response): void {
   const mapped = mapDatabaseError(err);
 
   if (mapped) {
@@ -86,8 +111,10 @@ function handleDatabaseError(err: DatabaseError, req: Request, res: Response) {
   sendError(res, 500, 'DATABASE_ERROR', 'Error en la base de datos');
 }
 
-// Handle application errors
-function handleAppError(err: AppError, req: Request, res: Response) {
+/**
+ * Handle application errors
+ */
+function handleAppError(err: AppError, req: Request, res: Response): void {
   const logLevel = err.statusCode >= 500 ? 'error' : 'info';
 
   logger[logLevel](
@@ -104,8 +131,10 @@ function handleAppError(err: AppError, req: Request, res: Response) {
   sendError(res, err.statusCode, err.code, err.message);
 }
 
-// Handle unknown errors
-function handleUnknownError(err: unknown, req: Request, res: Response) {
+/**
+ * Handle unknown errors
+ */
+function handleUnknownError(err: unknown, req: Request, res: Response): void {
   logger.error(
     {
       type: 'unhandled_error',
@@ -124,29 +153,49 @@ function handleUnknownError(err: unknown, req: Request, res: Response) {
   );
 
   const message =
-    config.isDevelopment && err instanceof Error ? err.message : 'Error interno del servidor';
+    config.isDevelopment && err instanceof Error 
+      ? err.message 
+      : 'Error interno del servidor';
 
   sendError(res, 500, 'INTERNAL_ERROR', message);
 }
 
-// Global error handler middleware
-export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction): void {
+/**
+ * Global error handler middleware
+ * 
+ * Process flow:
+ * 1. Check for validation errors (Zod)
+ * 2. Extract database errors from ORM wrappers (Drizzle)
+ * 3. Handle application errors
+ * 4. Handle unknown errors
+ */
+export function errorHandler(
+  err: unknown, 
+  req: Request, 
+  res: Response, 
+  next: NextFunction
+): void {
+  // Don't handle if response was already sent
   if (res.headersSent) {
     return next(err);
   }
-  // Check if its a validation error
+  
+  // 1. Validation errors (Zod)
   if (err instanceof ZodError) {
     return handleValidationError(err, req, res);
   }
-  // Check if its a database error
-  if (err instanceof DatabaseError) {
-    return handleDatabaseError(err, req, res);
+  
+  // 2. Database errors (extract from Drizzle wrapper if needed)
+  const dbError = extractDbError(err);
+  if (dbError) {
+    return handleDatabaseError(dbError, req, res);
   }
-  //// Check if its an application error
+  
+  // 3. Application errors
   if (isAppError(err)) {
     return handleAppError(err, req, res);
   }
 
-  // Unknown error handler
+  // 4. Unknown errors
   handleUnknownError(err, req, res);
 }

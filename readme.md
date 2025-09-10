@@ -29,3 +29,23 @@ PORT=3005
 npm install
 npx drizzle-kit push
 ```
+
+5. Despues de pushear las tablas a neon: Correr lo siguiente:
+
+```sql
+
+INSERT INTO departamento (id, nombre) VALUES 
+(1, 'Informática'),
+(2, 'Matemática'),
+(3, 'Física');
+
+INSERT INTO ciclo (id, periodo, anno) VALUES 
+(1, 1, 2024),
+(2, 2, 2024),
+(3, 1, 2025);
+
+INSERT INTO edificio (id, nombre) VALUES 
+('IF', 'Edificio Informática'),
+('FM', 'Edificio Física-Matemática');
+
+```
