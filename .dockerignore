@@ -1,0 +1,30 @@
+# Dependencias locales
+node_modules
+npm-debug.log
+yarn-error.log
+.pnpm-debug.log
+
+# Salidas de compilación
+.next
+out
+dist
+
+# Archivos de configuración y entornos
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+  # Directorios de herramientas
+  .git
+  .github
+  .husky
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Base de datos local
+*.sqlite
+*.db

@@ -1,20 +1,21 @@
-import { betterAuth } from 'better-auth';
-import { drizzleAdapter } from 'better-auth/adapters/drizzle';
-import { db } from '../db/config.js';
-import type { BetterAuthOptions } from 'better-auth';
-import { config } from '../config/index.js';
-import * as schema from '../db/schema/auth.js';
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import type { BetterAuthOptions } from "better-auth";
 
-const userConfig: BetterAuthOptions['user'] = {
+import { db } from "../db/config.js";
+import { config } from "../config/config.js";
+import * as schema from "../db/schema/auth";
+
+const userConfig: BetterAuthOptions["user"] = {
   additionalFields: {
-    firstName: { type: 'string', required: true },
-    lastName: { type: 'string', required: true },
+    firstName: { type: "string", required: true },
+    lastName: { type: "string", required: true },
   },
 };
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
-    provider: 'pg',
+    provider: "pg",
     schema: schema,
   }),
   user: userConfig,

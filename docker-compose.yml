@@ -1,0 +1,45 @@
+services:
+  backend:
+    container_name: backend-sac-mate
+    build:
+      context: .
+      target: runner
+    image: backend-sac-mate:local
+    ports:
+      - "3005:3005"
+    environment:
+      NODE_ENV: production
+      PORT: "3005"
+      DATABASE_URL: "postgresql://postgres:postgres@postgres:5432/sac_mate"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://localhost:3005/health/livez').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  postgres:
+    container_name: postgres-sac-mate
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sac_mate
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    driver: local
